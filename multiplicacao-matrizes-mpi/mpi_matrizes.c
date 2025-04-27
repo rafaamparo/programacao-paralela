@@ -94,9 +94,9 @@ int main(int argc, char *argv[]) {
         }
     MPI_Barrier(MPI_COMM_WORLD);
     // o Barrier sincroniza todos os processos neste ponto, então um processo só avança depois que todos chegarem aqui;
-    // essa sincronização é feita apenas só para organizar a ordem dos prints no terminal;
-    // lembrando que essa barreira NÃO interfere na paralelização da multiplicação de matrizes;
-    // quando o Barrier é chamado para sincronizar os prints, a execução paralela já aconteceu.
+    // essa sincronizaçao é feita só para organizar a ordem dos prints no terminal;
+    // lembrando que essa barreira NÃO interfere na paralelizaçao da multiplicaçao de matrizes;
+    // quando o Barrier é chamado para sincronizar os prints, a execuçao paralela já aconteceu.
 }
 
 
@@ -120,11 +120,13 @@ int main(int argc, char *argv[]) {
         }
         free(a);
         free(c);
+    // libera A e C, que só existem no processo 0
     }
 
     free(particao_a);
     free(submatriz_c);
     free(b);
+    // libera B e as matrizes locais, que existem para todos os processos
 
     MPI_Finalize();
     if (rank == 0) {
