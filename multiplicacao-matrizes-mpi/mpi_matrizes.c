@@ -6,7 +6,7 @@ int main(int argc, char *argv[]) {
     int rank, size;
     int m = 8, k = 3, n = 5; // A(m x k) * B(k x n) => C(m x n)
     int *a = NULL, *b = NULL, *c = NULL;
-    int *particao_a, *submatriz_c;
+    int *particao_a, *sub_c;
     int linhas_por_proc;
     double tempo_inicial, tempo_final;
     MPI_Init(&argc, &argv);
@@ -34,14 +34,14 @@ int main(int argc, char *argv[]) {
     // como cada linha de A tem (k) colunas, precisamos de  espaço para (linhas_por_proc * k) elementos;
     
     b = (int *)malloc(k * n * sizeof(int)); // matriz B, disponivel para todos os processos
-    submatriz_c = (int *)malloc(linhas_por_proc * n * sizeof(int)); 
+    sub_c = (int *)malloc(linhas_por_proc * n * sizeof(int)); 
     // espaço reservado para a parte da matriz C que cada processo vai calcular;
     // cada processo vai gerar (linhas_por_proc) linhas de C, cada uma com (n) colunas;
-    // a submatriz_c guarda só o resultado parcial, que depois é enviado para p0 para formar a matriz C completa.
+    // a sub_c guarda só o resultado parcial, que depois é enviado para p0 para formar a matriz C completa.
 
     if (rank == 0) {
         a = (int *)malloc(m * k * sizeof(int));
-        c = (int *)malloc(m * n * sizeof(int));
+        c = (int *)malloc(m * n * sizeof(int)); // A e C só existem em p0
         for (int i = 0; i < m * k; i++)
             a[i] = i + 1;
         for (int i = 0; i < k; i++) { // matriz B é identidade, para fins de teste
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
     // passamos esse valor (linhas_por_proc * k) porque o Scatter não consegue enviar uma "linha" da matriz, ele envia elementos;
     // entao se por exemplo, cada processo deve receber 1 linha e a matriz tem 3 colunas, cada processo deve receber 3 elementos.
     
-    for (int proc = 0; proc < size; proc++) { // cada processo vai mostrar o que recebeu e calcula sua subC
+    for (int proc = 0; proc < size; proc++) { // cada processo vai mostrar o que recebeu e calcula sua sub_c
         if (rank == proc) {
             printf("Processo %d recebeu a seguinte partição de A:\n", rank); // mostra a partição de A recebida pelo scatter 
             for (int i = 0; i < linhas_por_proc; i++) {
@@ -80,13 +80,13 @@ int main(int argc, char *argv[]) {
 
             printf("Processo %d calculando e imprimindo sua submatriz de C:\n", rank); // cálculo da submatriz de C para cada processo
             for (int i = 0; i < linhas_por_proc; i++) {
-                printf("subC[%d]: ", i);
+                printf("sub_c[%d]: ", i);
                 for (int j = 0; j < n; j++) {
-                    submatriz_c[i * n + j] = 0;
+                    sub_c[i * n + j] = 0;
                     for (int l = 0; l < k; l++) {
-                        submatriz_c[i * n + j] += particao_a[i * k + l] * b[l * n + j];
+                        sub_c[i * n + j] += particao_a[i * k + l] * b[l * n + j];
                     }
-                    printf("%d ", submatriz_c[i * n + j]);
+                    printf("%d ", sub_c[i * n + j]);
                 }
                 printf("\n");
             }
@@ -101,11 +101,11 @@ int main(int argc, char *argv[]) {
 
 
     // gather das submatrizes de C no processo 0
-    MPI_Gather(submatriz_c, linhas_por_proc * n, MPI_INT,
+    MPI_Gather(sub_c, linhas_por_proc * n, MPI_INT,
                c, linhas_por_proc * n, MPI_INT,
                0, MPI_COMM_WORLD);
     // o processo raiz (p0) recolhe com o gather as submatrizes de C calculadas por todos os processos, inclusive dele;
-    // cada processo envia para o raiz sua submatriz parcial (submatriz_c), contendo (linhas_por_proc * n) elementos (assim como o scatter, o gather trabalha com elementos); 
+    // cada processo envia para o raiz sua submatriz parcial (sub_c), contendo (linhas_por_proc * n) elementos (assim como o scatter, o gather trabalha com elementos); 
     // ou seja, a quantidade de números correspondentes as linhas que o processo calculou vezes o número de colunas da matriz C resultante;
     // o processo 0 recebe tudo isso no vetor c, juntando as submatrizes pela ordem do rank dos processos, completando a matriz C no final.
 
@@ -124,7 +124,7 @@ int main(int argc, char *argv[]) {
     }
 
     free(particao_a);
-    free(submatriz_c);
+    free(sub_c);
     free(b);
     // libera B e as matrizes locais, que existem para todos os processos
 
