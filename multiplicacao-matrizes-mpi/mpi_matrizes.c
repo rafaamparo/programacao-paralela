@@ -111,9 +111,9 @@ int main(int argc, char *argv[]) {
         }
     MPI_Barrier(MPI_COMM_WORLD);
     // o Barrier sincroniza todos os processos neste ponto, então um processo só avança depois que todos chegarem aqui;
-    // essa sincronizaçao é feita só para organizar a ordem dos prints no terminal;
+    // essa sincronizaçao é feita para tentar organizar a ordem dos prints no terminal;
     // lembrando que essa barreira NÃO interfere na paralelizaçao da multiplicaçao de matrizes;
-    // quando o Barrier é chamado para sincronizar os prints, a execuçao paralela já aconteceu.
+    // quando o Barrier é chamado, a execuçao paralela já aconteceu.
 }
 
     // gather das submatrizes de C no processo 0
@@ -148,7 +148,7 @@ int main(int argc, char *argv[]) {
 
     MPI_Finalize();
     if (rank == 0) {
-        printf("Foram gastos %3.6f segundos para calcular a matriz C", tempo_final - tempo_inicial);
+        printf("Foram gastos %3.6f segundos para calcular a matriz C\n", tempo_final - tempo_inicial);
     }
 
     return 0;
