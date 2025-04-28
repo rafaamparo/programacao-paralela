@@ -54,6 +54,22 @@ int main(int argc, char *argv[]) {
             deslocamento_para_receber[i] = deslocamento_linhas * n;
             deslocamento_linhas += linhas_para_esse_processo;
         }
+        printf("Matriz A:\n");
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < k; j++) {
+                printf("%d ", a[i * k + j]);
+            }
+            printf("\n");
+        }
+        printf("\n");
+        printf("Matriz B:\n");
+        for (int i = 0; i < k; i++) {
+            for (int j = 0; j < n; j++) {
+                printf("%d ", b[i * n + j]);
+            }
+            printf("\n");
+        }
+        printf("\n");
     }
 
     // broadcast da matriz B pra todos os processos;

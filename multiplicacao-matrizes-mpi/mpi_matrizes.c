@@ -52,8 +52,25 @@ int main(int argc, char *argv[]) {
                     b[i * n + j] = 0;
             }
         }
+        printf("Matriz A:\n");
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < k; j++) {
+                printf("%d ", a[i * k + j]);
+            }
+            printf("\n");
+        }
+        printf("\n");
+        printf("Matriz B:\n");
+        for (int i = 0; i < k; i++) {
+            for (int j = 0; j < n; j++) {
+                printf("%d ", b[i * n + j]);
+            }
+            printf("\n");
+        }
+        printf("\n");
     }
 
+    tempo_inicial = MPI_Wtime();
     // broadcast de B para todos os processos
     MPI_Bcast(b, k * n, MPI_INT, 0, MPI_COMM_WORLD);
 
@@ -99,7 +116,6 @@ int main(int argc, char *argv[]) {
     // quando o Barrier é chamado para sincronizar os prints, a execuçao paralela já aconteceu.
 }
 
-
     // gather das submatrizes de C no processo 0
     MPI_Gather(sub_c, linhas_por_proc * n, MPI_INT,
                c, linhas_por_proc * n, MPI_INT,
@@ -108,6 +124,8 @@ int main(int argc, char *argv[]) {
     // cada processo envia para o raiz sua submatriz parcial (sub_c), contendo (linhas_por_proc * n) elementos (assim como o scatter, o gather trabalha com elementos); 
     // ou seja, a quantidade de números correspondentes as linhas que o processo calculou vezes o número de colunas da matriz C resultante;
     // o processo 0 recebe tudo isso no vetor c, juntando as submatrizes pela ordem do rank dos processos, completando a matriz C no final.
+    
+    tempo_final = MPI_Wtime();
 
     if (rank == 0) {
         // processo 0 imprime a matriz C completa
@@ -130,7 +148,6 @@ int main(int argc, char *argv[]) {
 
     MPI_Finalize();
     if (rank == 0) {
-        tempo_final = MPI_Wtime();
         printf("Foram gastos %3.6f segundos para calcular a matriz C", tempo_final - tempo_inicial);
     }
 
