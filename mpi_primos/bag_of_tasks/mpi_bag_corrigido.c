@@ -3,7 +3,7 @@
 #include <math.h>
 #include "mpi.h"
 
-#define TAMANHO 500
+#define TAMANHO 500000
 
 int primo(int n) {
     if (n % 2 == 0) return (n == 2);
