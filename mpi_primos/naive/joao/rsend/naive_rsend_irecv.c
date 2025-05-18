@@ -70,24 +70,30 @@ int main(int argc, char *argv[]) {
 		
 		if (meu_ranque == 0) {
 			total = cont; // Inicializa com os primos encontrados pelo processo 0
-			int cont_outros;
-			MPI_Request requests[num_procs-1];
-			MPI_Status statuses[num_procs-1];
-			
-			// Inicia todas as recepções não-bloqueantes
-			for (int origem = 1; origem < num_procs; origem++) {
-				// MPI_Irecv inicia a recepção e retorna imediatamente
-				MPI_Irecv(&cont_outros + (origem-1), 1, MPI_INT, origem, 0, 
-					MPI_COMM_WORLD, &requests[origem-1]);
-			}
-			
-			// Espera todas as recepções terminarem
-			MPI_Waitall(num_procs-1, requests, statuses);
-			
-			// Soma todas as contagens recebidas
-			for (int origem = 1; origem < num_procs; origem++) {
-				total += *((&cont_outros) + (origem-1));
-			}
+
+            // Recebendo os resultados de cada processo
+            MPI_Request *requests = (MPI_Request *)malloc((num_procs-1) * sizeof(MPI_Request));
+            int *recv_counts = (int *)malloc((num_procs-1) * sizeof(int));
+            
+            // Posta recebimentos não bloqueantes de todos os outros processos
+            for (i = 1; i < num_procs; i++) {
+                MPI_Irecv(&recv_counts[i-1], 1, MPI_INT, i, 0, MPI_COMM_WORLD, &requests[i-1]);
+            }
+            
+            // Aguarda recebimento de todos os valores
+            MPI_Status *status = (MPI_Status *)malloc((num_procs-1) * sizeof(MPI_Status));
+            MPI_Waitall(num_procs-1, requests, status);
+            
+            // Soma todos os valores recebidos
+            for (i = 0; i < num_procs-1; i++) {
+                total += recv_counts[i];
+            }
+            
+            // Libera a memória alocada
+            free(requests);
+            free(recv_counts);
+            free(status);
+
 		} else {
 			// Usando MPI_Rsend que exige que o receptor já tenha postado o MPI_Irecv
 			MPI_Rsend(&cont, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
