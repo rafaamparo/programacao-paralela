@@ -6,3 +6,7 @@ mpi_primos/naive/irecv
 .gitignore
 mpi_primos/naive/isend
 mpi_primos/naive/ii
+mpi_primos/naive/send
+.gitignore
+mpi_primos/naive/rsend
+mpi_primos/naive/joao/sendjoao

@@ -37,18 +37,18 @@ int main(int argc, char *argv[]) {
 	}
 		
 	if (meu_ranque == 0) {
-        //raiz recebe contagens de todos os processos
-        total = cont;  // incluindo a de si mesma
-        for (int src = 1; src < num_procs; src++) {
-            MPI_Status status;
-            int recv_count;
-            MPI_Recv(&recv_count, 1, MPI_INT, src, 0, MPI_COMM_WORLD, &status);
-            total += recv_count;
-        }
-    } else {
-        // nós enviam suas contagens para o processo 0
-        MPI_Send(&cont, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
-    }
+			//raiz recebe contagens de todos os processos
+			total = cont;  // incluindo a de si mesma
+			for (int src = 1; src < num_procs; src++) {
+				MPI_Status status;
+				int recv_count;
+				MPI_Recv(&recv_count, 1, MPI_INT, src, 0, MPI_COMM_WORLD, &status);
+				total += recv_count;
+			}
+		} else {
+			// nós enviam suas contagens para o processo 0
+			MPI_Send(&cont, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+		}
 	
 	t_final = MPI_Wtime();
 
