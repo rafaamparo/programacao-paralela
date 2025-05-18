@@ -25,6 +25,10 @@ int main(int argc, char *argv[]) {
         	n = strtol(argv[1], (char **) NULL, 10);
        	}
 
+	if (n < 2 ) {
+		printf("Valor inválido! Entre com um valor maior que 2\n");
+		return 0;
+	}
 	MPI_Init(&argc, &argv);
 	MPI_Comm_rank(MPI_COMM_WORLD, &meu_ranque);
 	MPI_Comm_size(MPI_COMM_WORLD, &num_procs);	
@@ -54,7 +58,7 @@ int main(int argc, char *argv[]) {
 
 	if (meu_ranque == 0) {
 		total += 1;  // contando o 2, que também é primo
-		printf("Quant. de primos entre 1 e n: %d \n", total);
+		printf("Quant. de primos entre 1 e %ld: %d \n", n, total);
 		printf("Tempo de execucao: %0.9f s\n", t_final - t_inicial);	 
 	}
 	MPI_Finalize();

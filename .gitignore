@@ -10,3 +10,9 @@ mpi_primos/naive/send
 .gitignore
 mpi_primos/naive/rsend
 mpi_primos/naive/joao/sendjoao
+mpi_primos/naive/birec
+mpi_primos/naive/bsend
+mpi_primos/naive/sirec
+.gitignore
+mpi_primos/naive/joao/bsend/bsend
+mpi_primos/naive/ssend
