@@ -40,6 +40,11 @@ int main(int argc, char *argv[]) {
     MPI_Status estado;
 
     int n = strtol(argv[1], NULL, 10);
+    if (n < 2 ) {
+        printf("Valor inválido! Entre com um valor maior que 2\n");
+        MPI_Finalize();
+        return 0;
+    }
 
     t0 = MPI_Wtime();
 
@@ -80,7 +85,7 @@ int main(int argc, char *argv[]) {
         // conta o 2
         total += 1;
         t1 = MPI_Wtime();
-        printf("Quant. de primos entre 1 e %d: %d\n", n, total);
+        printf("Quant. de primos entre 1 e %ld: %d\n", n, total);
         printf("Tempo de execucao: %0.9f s\n", t1 - t0);
     }
     else {
